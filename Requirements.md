@@ -46,3 +46,30 @@ State	Ticket lifecycle	Control ticket transitions
 Repository	TicketRepository	Abstract persistence
 Observer / Events	ParkingEventPublisher	Publish occupancy and payment events
 
+Important edge cases
+Scenario	Expected behaviour
+Parking lot full	Reject entry gracefully
+Duplicate vehicle entry	Check for existing active ticket
+Payment failure	Keep ticket open and spot occupied
+Customer scans ticket twice	Idempotent exit processing
+Lost ticket	Apply configurable lost-ticket policy
+Spot maintenance	Mark OUT_OF_SERVICE
+Power failure	Recover state from database
+Application restart	Restore active tickets and occupancy
+Payment gateway timeout	Reconcile using gateway transaction reference
+Vehicle mismatch	Flag for manual verification
+Vehicle overstays	Apply additional pricing policy
+Two simultaneous entries	Allocate distinct spots
+
+REST API design
+Assume Spring Boot REST APIs.
+Method	Endpoint	Purpose
+POST	/api/v1/vehicles/entry	Vehicle entry and ticket issue
+GET	/api/v1/tickets/{ticketId}	Retrieve ticket
+GET	/api/v1/parking/availability	Available spot count
+GET	/api/v1/parking/floors	List floors
+GET	/api/v1/parking/floors/{floorId}/spots	Get floor spots
+POST	/api/v1/vehicles/exit/quote	Calculate exit fee
+POST	/api/v1/payments	Process payment
+POST	/api/v1/vehicles/exit/complete	Complete vehicle exit
+
